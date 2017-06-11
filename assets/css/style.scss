@@ -1,0 +1,26 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+$headers-color: black;
+$text-color: #666666;
+
+body {
+    text-align: justify;
+}
+
+.page-header {
+    background-color: #3385ff !important;
+    background-image:url(); // Hack to prevent the gradient 
+}
+
+.main-content {
+    h1, h2, h3, h4, h5, h6 {
+        color: $headers-color;
+    }
+
+    p {
+        color: $text-color;
+    }
+}
