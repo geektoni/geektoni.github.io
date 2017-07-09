@@ -3,6 +3,7 @@ layout: post
 title: Keeping on Detoxing
 date: 2017-06-26 9:00
 excerpt: Second GSoC blog post
+tags: [shogun, shogun-toolbox, gsoc, rxcpp, machine learning, algorithms]
 ---
 
 # Keeping on Detoxing

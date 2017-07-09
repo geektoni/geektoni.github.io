@@ -3,6 +3,7 @@ layout: post
 title: First GSoC Weeks!
 date: 2017-06-12 9:00
 excerpt: First blog post!
+tags: [gsoc, shogun, shogn-toolbox, c++, progress bar, github, machine learning]
 ---
 # First GSoC Weeks!
 
