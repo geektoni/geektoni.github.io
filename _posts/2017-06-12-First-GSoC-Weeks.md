@@ -1,6 +1,7 @@
 ---
 layout: post
 title: First GSoC Weeks!
+date: 2017-06-12 9:00
 excerpt: First blog post!
 ---
 # First GSoC Weeks!
