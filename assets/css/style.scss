@@ -12,7 +12,10 @@ body {
 
 .page-header {
     background-color: #3385ff !important;
-    background-image:url(); // Hack to prevent the gradient
+    background-image:url('./../img/background.jpg'); // Hack to prevent the gradient
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 .project-name a {
