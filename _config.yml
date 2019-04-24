@@ -1,0 +1,10 @@
+theme: jekyll-theme-cayman
+title: Giovanni De Toni
+description: Random thoughts
+permalink: pretty
+exclude: [vendor]
+defaults:
+  - scope:
+      path: "assets/img"
+    values:
+      image: true
