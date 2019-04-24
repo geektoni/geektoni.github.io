@@ -9,10 +9,6 @@ before_script:
 # the `install` step will run `bundle install` by default.
 script: ./script/cibuild.sh
 
-after_success:
-  - chmod +x _scripts/deploy.sh
-  - _scripts/deploy.sh
-
 env:
   global:
   - NOKOGIRI_USE_SYSTEM_LIBRARIES=true # speeds up installation of html-proofer
@@ -21,6 +17,14 @@ addons:
   apt:
     packages:
     - libcurl4-openssl-dev
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN
+  keep_history: true
+  on:
+    branch: master
 
 exclude: [vendor]
 
