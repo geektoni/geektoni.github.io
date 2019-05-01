@@ -11,8 +11,8 @@ tags: [shogun, machine learning, observers]
 ## Introduction
 
 [Shogun](https://github.com/shogun-toolbox/shogun) is a **machine learning framework** which provides **efficient implementations** of the most common algorithms to solve large-scale problems. The toolbox is **completely written in C++** and it offers several **interfaces** in other languages as well (e.g. python, Java, Javascript, etc.).  
-Since Shogun is one of the oldest available machine learning frameworks, (its development started in 1999) in the past few years it has undergone an extensive development effort such to update and improve its internal structure.
-With this in mind, we also started to work on the usability of the toolbox itself. In particular, we wanted to make more transparent Shogun's internal models by making them emit data while they are running. Currently, once a call to the `train()` method is issued, it is not possible to see anymore the internals of a model. Therefore, the final users are basically looking at a **"black box"**, an opaque model in which they cannot identify its inner workings.
+Since Shogun is one of the oldest available machine learning frameworks (its development started in 1999), in the past few years it has undergone an extensive development effort such to update and improve its internal structure.
+With this in mind, we also started to work on the usability of the toolbox itself. In particular, we wanted to make more transparent Shogun's internal models by making them emit data while they are running. Currently, once a call to the `train()` method is issued, it is not possible to see anymore the internals of a model. Therefore, the final users are basically looking at a **"black box"**, an opaque machine in which they cannot identify its inner workings.
 
 For instance, when we use Shogun's cross-validation to validate our machine learning models, it is hard for us to extract information from each of the fold runs. For instance, we might be interested in inspecting the machine trained at a certain fold. These kind of goals are usually not possible (or not straightforward to achieve).
 
@@ -44,11 +44,11 @@ We employed the [Observer Pattern](https://en.wikipedia.org/wiki/Observer_patter
 More specifically, in Shogun each model has a `subscribe()` method which a `ParameterObserver` object can use to get information from the given model. A Shogun's model also has another method called `observe()` which can be used to transmit information to all the attached observers. The `observe()` method is for internal use only and it is not exposed.
 
 We did not implement the observer pattern ourselves. We used instead [RxCpp](https://github.com/ReactiveX/RxCpp) which
-is a header-only C++ library that offers several algorithms for building asynchronous and event-based programs.
+is a header-only C++ library that offers several algorithms for building **asynchronous** and **event-based programs**.
 
 ### ObservedValue and ObservedValueTemplated
 
-What kind of information is passed to the observers? Virtually, any object can be emitted by the model to the various observers. In order to provide this flexible functionality, we implemented a "wrapper" class, called `ObservedValue`, which can be used to store efficiently any data that a model may want to send around.
+What kind of information is passed to the observers? Virtually, any object can be emitted by the models to the various observers. In order to provide this flexible functionality, we implemented a "wrapper" class, called `ObservedValue`, which can be used to store efficiently any data that a model may want to send around.
 Since we used the new `get()`/`put()` methods from Shogun, we had to provide a **typed wrapper** (such to store whichever object needed). That is easily achievable by using C++ templates. However, we also needed to provide a clear interface to create/emit these `ObservedValue`. We then split the template functionality such to build two classes. The final architecture was the following:
 
 ```c++
@@ -68,7 +68,7 @@ private:
     T m_value;
 };
 ```
-In order to observe something, an `ObservedValueTemplated` object is generated. Moreover, thanks to inheritance mechanisms, the observers works only with `ObservedValue` objects. This simplify the overall API and it preserves the intended functionalities. In order to retrieve the observed value we just need to call the appropriate getter:
+In order to observe something, an `ObservedValueTemplated` object is generated. Moreover, thanks to inheritance mechanisms, the observer works only with `ObservedValue` objects. This simplifies the overall API and it preserves the intended functionalities. In order to retrieve the observed value we just need to call the appropriate getter:
 
 ```c++
 ObservedValue obs;
@@ -76,9 +76,9 @@ obs.get<type>("name_of_the_stored_parameter");
 ```
 
 
-## A simple example
+## A simple observable model
 
-We will build a binary classifier using as a model the AveragedPerceptron. Moreover,
+As a simple example, we will build a binary classifier using as a model the `AveragedPerceptron`. Moreover,
 we will use Shogun's Python interface to code it.
 
 First of all, we import some Shogun's methods which will be used to instantiate
@@ -90,9 +90,11 @@ from shogun import csv_file, features, labels, machine, parameter_observer
 ```
 
 Then we load the data files which contains the features and labels needed for
-this example. You can download these files from the Shogun's dataset repository
-which you can find [here](https://github.com/shogun-toolbox/shogun-data). It is
-a small dataset composed by two dimensional points which can have two labels `-1` and `1`.
+this example. You can download these files from here:
+* [Features](/assets/data/classifier_binary_2d_linear_features_train.dat) and [Labels](/assets/data/classifier_binary_2d_linear_labels_train.dat) (Train);
+* [Features](/assets/data/classifier_binary_2d_linear_features_test.dat) and [Labels](/assets/data/classifier_binary_2d_linear_labels_test.dat) (Test);
+
+It is a small dataset (1000 samples) composed by two dimensional points which can have two labels `-1` and `1`.
 ```python
 f_feats_train = csv_file("classifier_binary_2d_linear_features_train.dat")
 f_feats_test = csv_file("classifier_binary_2d_linear_features_test.dat")
@@ -107,12 +109,11 @@ labels_test = labels(f_labels_test)
 The data are linearly separable, as we can see from the plot below.
 
 <p align="center">
-  <img src="/assets/img/binary_data_sample.png" />
+  <img src="/assets/img/binary_data_sample.png" alt="Binary Data Sample" />
 </p>
 
 We then initialize the model and we attach a parameter observer to it. In this example,
 we use a logger which will print all the information it receives on stdout.
-from the `perceptron` machine.
 ```python
 perceptron = machine("AveragedPerceptron", labels=labels_train, learn_rate=1.0, max_iterations=1000)
 
@@ -135,7 +136,7 @@ As you can see, the `AveragedPerceptron` emits its weights and bias.
 By looking at them we can get a certain idea about how the hyperplane is changing
 (if we are in a low dimensional space) and we can use those data to build nice
 visualizations. For instance, by adding more python code we can generate a nice
-video in which we show how the separation planes changes during training.
+video in which we show how the separation plane changes during training.
 
 ```python
 #
@@ -153,8 +154,8 @@ line, = ax.plot([], [])
 
 plt.suptitle("Binary Data Sample")
 
-# We first need to divide the samples into one class
-# and the other
+# We first need to divide the samples into the two classes (-1 and 1).
+# We will use four lists to store their x and y coordinates.
 blue_x = []
 red_x = []
 blue_y = []
@@ -169,7 +170,8 @@ for i in range(0, features_train.get_num_vectors()):
         red_x.append(mat[0][i])
         red_y.append(mat[1][i])
 
-# Divide the observations into bias and weigths
+# Filter the observations by looking only at bias and weights.
+# We also store them into two lists to make things easier.
 w = []
 bias = []
 for i in range(0, observer.get("num_observations")):
@@ -178,7 +180,8 @@ for i in range(0, observer.get("num_observations")):
     elif (observer.get_observation(i).get("name") == "bias"):
         bias.append(observer.get_observation(i).get("bias"))
 
-# Plot the background for each frame
+# This function will be used to initialize the first frame of the
+# video. We just plot the two classes and we set some labels.
 def init():
 
     plt.plot(blue_x, blue_y, 'bo', label="Label = 1")
@@ -189,11 +192,11 @@ def init():
 
     plt.xlabel("x")
     plt.ylabel("y")
-    plt.legend(loc="upper left", numpoints=1)
 
     return line,
 
-# Print the observation line on screen
+# This function will be called for each observation (from i to len(w)).
+# Each time we compute the hyperplane by looking at the bias and weights.
 def animate(i):
     print("Processing observation: {}/{}".format(i, len(w)))
     plt.title("Iteration {}".format(i))
@@ -202,12 +205,13 @@ def animate(i):
 
     return line,
 
+# Run the actual animation call which will generate the video.
 anim = animation.FuncAnimation(fig, animate, init_func=init, frames=len(w), interval=200, blit=True)
 anim.save('./video/hyperplane.mp4', fps=30, extra_args=['-vcodec', 'libx264'], bitrate=500)
 
 ```
-We can see the result in this image gif below. As you can see, the separation plane
-changes from its initial position to the one which minimize the classification error.
+We can see the result below. The separation plane changes from its initial position
+to the one which minimize the classification error.
 
 <p align="center">
     <video controls>
@@ -216,12 +220,11 @@ changes from its initial position to the one which minimize the classification e
     </video>
 </p>
 
-The complete code for this example can be found [here](/assets/data/averaged_perceptron_observable_shogun.py).
-
 # Conclusions
 
-Now that the architecture is finalized, the next steps will be to apply it to the Shogun's models. This will be done by updating their `train()` method such to emit valuable information while they are fitted. For instance, as we did for the AveragedPerceptron example, the new observable models will be able to emit their weights and biases during training to give to user valuable new insights.
-
+Now that the architecture is finalized, the next steps will be to apply it to the Shogun's models. This will be done by updating their `train()` method such to emit valuable information while they are being fitted. For instance, as we did for the `AveragedPerceptron` example, the new observable models will be able to emit their weights and biases during training to give to the users valuable new insights.
+The final goal will be making the users able to build their machine learning models with **interactive
+visualizations** which will provide a **concrete real-time feedback**.
 
 
 ## Useful links
@@ -230,7 +233,16 @@ If you need more technical informations, please refer to the links provided belo
 Have a look to the various PRs to see which was the development process and what
 were the features implemented.
 
-[Wiki page on Shogun's Github](https://github.com/shogun-toolbox/shogun/wiki)
+* [Wiki page on Shogun's Github](https://github.com/shogun-toolbox/shogun/wiki)
+* [ObservedValue Class ](https://github.com/shogun-toolbox/shogun/blob/feature/observable_framework/src/shogun/base/SGObject.h#L1168)
+* [ObservedValueTemplated Class](https://github.com/shogun-toolbox/shogun/blob/feature/observable_framework/src/shogun/base/SGObject.h#L1214)
+
+### Code
+
+The complete code for the example shown above can be found [here](/assets/data/averaged_perceptron_observable_shogun.py).
+Be aware that, in order to run it. you would need to have compiled manually Shogun since these
+features are **still experimental** and therefore are not part of an official release.
+All these features can be found in the following branch [`feature/observable_framework`](https://github.com/shogun-toolbox/shogun/tree/feature/observable_framework).
 
 ### Pull Requests
 1. [Refactor ObservedValue](https://github.com/shogun-toolbox/shogun/pull/4552)
